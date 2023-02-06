@@ -1,0 +1,300 @@
+16:46:06 **** Build of project vga_sdk_bsp ****
+make -k all 
+"Running Make include in microblaze_0/libsrc/axivdma_v6_6/src"
+make -C microblaze_0/libsrc/axivdma_v6_6/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in microblaze_0/libsrc/bram_v4_2/src"
+make -C microblaze_0/libsrc/bram_v4_2/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in microblaze_0/libsrc/cpu_v2_8/src"
+make -C microblaze_0/libsrc/cpu_v2_8/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in microblaze_0/libsrc/dynclk_v1_1/src"
+make -C microblaze_0/libsrc/dynclk_v1_1/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in microblaze_0/libsrc/standalone_v6_8/src"
+make -C microblaze_0/libsrc/standalone_v6_8/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in microblaze_0/libsrc/vtc_v8_0/src"
+make -C microblaze_0/libsrc/vtc_v8_0/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make libs in microblaze_0/libsrc/axivdma_v6_6/src"
+make -C microblaze_0/libsrc/axivdma_v6_6/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling axivdma"
+mb-ar: creating ../../../lib/libxil.a
+"Running Make libs in microblaze_0/libsrc/bram_v4_2/src"
+make -C microblaze_0/libsrc/bram_v4_2/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling bram"
+"Running Make libs in microblaze_0/libsrc/cpu_v2_8/src"
+make -C microblaze_0/libsrc/cpu_v2_8/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling cpu"
+"Running Make libs in microblaze_0/libsrc/dynclk_v1_1/src"
+make -C microblaze_0/libsrc/dynclk_v1_1/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling ddynclk"
+In file included from ddynclk.h:16:0,
+                 from ddynclk.c:4:
+ddynclk.c: In function 'DDynClk_SetRate':
+../../../include/xil_io.h:223:13: warning: 'clkReg.fltr_lockH' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  *LocalAddr = Value;
+  ~~~~~~~~~~~^~~~~~~
+ddynclk.c:365:26: note: 'clkReg.fltr_lockH' was declared here
+  struct dglnt_dynclk_reg clkReg;
+                          ^~~~~~
+In file included from ddynclk.h:16:0,
+                 from ddynclk.c:4:
+../../../include/xil_io.h:223:13: warning: 'clkReg.lockL' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  *LocalAddr = Value;
+  ~~~~~~~~~~~^~~~~~~
+ddynclk.c:365:26: note: 'clkReg.lockL' was declared here
+  struct dglnt_dynclk_reg clkReg;
+                          ^~~~~~
+In file included from ddynclk.h:16:0,
+                 from ddynclk.c:4:
+../../../include/xil_io.h:223:13: warning: 'clkReg.divclk' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  *LocalAddr = Value;
+  ~~~~~~~~~~~^~~~~~~
+ddynclk.c:365:26: note: 'clkReg.divclk' was declared here
+  struct dglnt_dynclk_reg clkReg;
+                          ^~~~~~
+In file included from ddynclk.h:16:0,
+                 from ddynclk.c:4:
+../../../include/xil_io.h:223:13: warning: 'clkReg.clkFBL' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  *LocalAddr = Value;
+  ~~~~~~~~~~~^~~~~~~
+ddynclk.c:365:26: note: 'clkReg.clkFBL' was declared here
+  struct dglnt_dynclk_reg clkReg;
+                          ^~~~~~
+"Running Make libs in microblaze_0/libsrc/standalone_v6_8/src"
+make -C microblaze_0/libsrc/standalone_v6_8/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling standalone";
+inbyte.c: In function 'inbyte':
+inbyte.c:11:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+outbyte.c: In function 'outbyte':
+outbyte.c:11:19: warning: unused parameter 'c' [-Wunused-parameter]
+ void outbyte(char c) {
+                   ^
+microblaze_sleep.c:77:9: note: #pragma message: For the sleep routines, assembly instructions are used
+ #pragma message ("For the sleep routines, assembly instructions are used")
+         ^~~~~~~
+"Running Make libs in microblaze_0/libsrc/vtc_v8_0/src"
+make -C microblaze_0/libsrc/vtc_v8_0/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling video timing controller"
+'Finished building libraries'
+
+**** Build of configuration Debug for project vga_sdk ****
+
+Nothing to build for project vga_sdk
+16:47:24 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/zybo_vga/display_ctrl.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/zybo_vga/display_ctrl.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/zybo_vga/display_ctrl.d" -MT"src/zybo_vga/display_ctrl.o" -o "src/zybo_vga/display_ctrl.o" "../src/zybo_vga/display_ctrl.c"
+'Finished building: ../src/zybo_vga/display_ctrl.c'
+' '
+'Building file: ../src/zybo_vga/dynclk.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/zybo_vga/dynclk.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/zybo_vga/dynclk.d" -MT"src/zybo_vga/dynclk.o" -o "src/zybo_vga/dynclk.o" "../src/zybo_vga/dynclk.c"
+'Finished building: ../src/zybo_vga/dynclk.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+d:/liulei/xilinx/sdk/2018.3/gnu/microblaze/nt/bin/../lib/gcc/microblaze-xilinx-elf/7.3.1/../../../../microblaze-xilinx-elf/lib/le/crtinit.o: In function `_crtinit':
+(.text+0x78): undefined reference to `main'
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:38: vga_sdk.elf] Error 1
+16:48:16 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+d:/liulei/xilinx/sdk/2018.3/gnu/microblaze/nt/bin/../lib/gcc/microblaze-xilinx-elf/7.3.1/../../../../microblaze-xilinx-elf/lib/le/crtinit.o: In function `_crtinit':
+(.text+0x78): undefined reference to `main'
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:39: vga_sdk.elf] Error 1
+16:49:10 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+../src/main.c: In function 'main':
+../src/main.c:27:79: error: 'XPAR_VGA_AXI_DYNCLK_0_BASEADDR' undeclared (first use in this function); did you mean 'XPAR_VGA_AXI_VDMA_0_BASEADDR'?
+  DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
+                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                                                               XPAR_VGA_AXI_VDMA_0_BASEADDR
+../src/main.c:27:79: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [src/subdir.mk:23: src/main.o] Error 1
+16:49:31 **** Incremental Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+../src/main.c: In function 'main':
+../src/main.c:27:79: error: 'XPAR_VGA_AXI_DYNCLK_0_BASEADDR' undeclared (first use in this function); did you mean 'XPAR_VGA_AXI_VDMA_0_BASEADDR'?
+  DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
+                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                                                               XPAR_VGA_AXI_VDMA_0_BASEADDR
+../src/main.c:27:79: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [src/subdir.mk:23: src/main.o] Error 1
+16:49:38 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 108564	   1576	10374092	10484232	 9ffa08	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:50:10 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 108564	   1576	10374092	10484232	 9ffa08	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:50:20 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 108548	   1576	2463692	2573816	 2745f8	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:50:57 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 108564	   1576	10374092	10484232	 9ffa08	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:51:04 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 108548	   1576	2463692	2573816	 2745f8	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:51:11 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 108548	   1576	2463692	2573816	 2745f8	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:51:16 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+  30056	    408	2463624	2494088	 260e88	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+16:51:38 **** Clean-only build of configuration Debug for project vga_sdk ****
+make clean 
+rm -rf  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o  ./src/zybo_vga/display_ctrl.d ./src/zybo_vga/dynclk.d  ./src/main.d  vga_sdk.elf.size  vga_sdk.elf
+' '
+16:51:38 **** Auto Build of configuration Debug for project vga_sdk ****
+make all 
+'Building file: ../src/zybo_vga/display_ctrl.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/zybo_vga/display_ctrl.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/zybo_vga/display_ctrl.d" -MT"src/zybo_vga/display_ctrl.o" -o "src/zybo_vga/display_ctrl.o" "../src/zybo_vga/display_ctrl.c"
+'Finished building: ../src/zybo_vga/display_ctrl.c'
+' '
+'Building file: ../src/zybo_vga/dynclk.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/zybo_vga/dynclk.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/zybo_vga/dynclk.d" -MT"src/zybo_vga/dynclk.o" -o "src/zybo_vga/dynclk.o" "../src/zybo_vga/dynclk.c"
+'Finished building: ../src/zybo_vga/dynclk.c'
+' '
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_sdk_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_sdk.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_sdk_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_sdk.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/main.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_sdk.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_sdk.elf  |tee "vga_sdk.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+  30056	    408	2462596	2493060	 260a84	vga_sdk.elf
+'Finished building: vga_sdk.elf.size'
+' '
+21:56:39 **** Incremental Build of configuration Debug for project vga_sdk ****
+make all 
+make: Nothing to be done for 'all'.
