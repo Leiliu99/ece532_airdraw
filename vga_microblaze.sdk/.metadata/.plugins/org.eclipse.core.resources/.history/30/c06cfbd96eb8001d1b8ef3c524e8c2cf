@@ -1,0 +1,237 @@
+/**
+ * Example of using the Digilent display drivers for Zybo VGA output, with animation
+ * Russell Joyce, 14/03/2017
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "xil_types.h"
+#include "xil_cache.h"
+#include "xparameters.h"
+#include "zybo_vga/display_ctrl.h"
+#include "platform.h"
+#include "xil_io.h"
+#include "PS2Decoder.h"
+#include "string.h"
+#include "draw.h"
+#include "btn_ctrl.h"
+
+// Frame size (based on 1440x900 resolution, 32 bits per pixel)
+#define MAX_FRAME (640*480)
+#define FRAME_STRIDE (640*4)
+
+DisplayCtrl dispCtrl; // Display driver struct
+u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
+void *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
+void swap_fake (int* first, int* second);
+int abs_fake(int num);
+void draw_line_fake (u32* frame, int start_x, int start_y, int end_x, int end_y, u32 colour);
+
+//u32 canvas[640*480];
+
+
+volatile unsigned int* bramctrl = (unsigned int*) XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR;
+int main(void) {
+	// Initialise an array of pointers to the 2 frame buffers
+	int i;
+	for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
+		pFrames[i] = frameBuf[i];
+
+	// Initialise the display controller
+	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_S_AXI_LITE_BASEADDR, pFrames, FRAME_STRIDE);
+
+	// Start with the first frame buffer (of two)
+	DisplayChangeFrame(&dispCtrl, 0);
+
+	// Set the display resolution
+	DisplaySetMode(&dispCtrl, &VMODE_640x480);
+
+	// Enable video output
+	DisplayStart(&dispCtrl);
+
+	// Get parameters from display controller struct
+	int x, y;
+	u32 stride = dispCtrl.stride / 4;
+	u32 width = dispCtrl.vMode.width;
+	u32 height = dispCtrl.vMode.height;
+	int points[20][2] = {{150, 250}, {191, 241},{216, 224},{232, 205},{245, 183},{250, 150},
+			{243, 113},{228, 88},{206, 67},{179, 54},{147, 50},{117, 56},{89, 71},
+			{71, 89},{56, 115},{51, 163},{57, 187},{72, 213},{103, 238},{150, 250} };
+	int hearts[30][2] = { {400,200}, {405, 221}, {415, 236}, {429, 246}, {450, 250}, {474, 244}, {491, 228}, {500, 204},
+			{496, 186}, {486, 169}, {473, 152}, {454, 132}, {438, 116}, {426, 104}, {410, 84}, {400, 52}, {388, 85},
+			{373, 105}, {342, 137}, {316, 166}, {306, 182}, {300, 204}, {304, 220}, {313, 234}, {332, 247}, {350, 250},
+			{370, 246}, {385, 236}, {396, 220}, {400, 200}};
+	u32 *frame;
+	int right = 1;
+	int down = 1;
+//	int xpos_pre;
+//	int ypos_pre;
+//	int xpos = 0;
+//	int ypos = 0;
+//	xpos_pre = xpos;
+//	ypos_pre = ypos;
+	int xpos_start = points[0][0];
+	int ypos_start = points[0][1];
+	int xpos_end = points[1][0];
+	int ypos_end = points[1][1];
+	u32 buff = dispCtrl.curFrame;
+
+
+
+	frame = dispCtrl.framePtr[0];
+	memset(frame, 0xFF, MAX_FRAME*4);
+	frame = dispCtrl.framePtr[1];
+	memset(frame, 0xFF, MAX_FRAME*4);
+	memset(canvas, 0xFF, MAX_FRAME*4);
+
+//	for (int i = 0; i < 29; i ++) {
+//				// Switch the frame we're modifying to be back buffer (1 to 0, or 0 to 1)
+//				//buff = !buff;
+//				frame = dispCtrl.framePtr[buff];
+//
+//				// Clear the frame to white
+//				//memset(frame, 0xFF, MAX_FRAME*4);
+//				int xpos_start = hearts[i][0];
+//				int ypos_start = 479 - hearts[i][1];
+//				int xpos_end = hearts[1+i][0];
+//				int ypos_end = 479 - hearts[1+i][1];
+//
+//				 draw_line (xpos_start, ypos_start, xpos_end, ypos_end, 0xF0561D);
+//				int ulx, uly;
+//				ulx = (xpos_start > xpos_end) ? xpos_end : xpos_start;
+//				uly = (ypos_start > ypos_end) ? ypos_end : ypos_start;
+//				int delta_x = abs(xpos_start - xpos_end) + 1;
+//				int delta_y = abs(ypos_start - ypos_end) + 1;
+//
+//				// Draw black square on the screen
+//				/*for (x = xpos; x < xpos+64; x++) {
+//					for (y = ypos; y < ypos+64; y++) {
+//						frame[y*stride + x] = 0;
+//					}
+//				}*/
+//				for (y = uly; y < uly+delta_y; y++) {
+//					memcpy(frame + y*stride + ulx, canvas + y*stride + ulx, delta_x*4);
+//				}
+//				/*for (y = ypos_pre; y < ypos_pre+20; y++) {
+//					memset(frame + y*stride + xpos_pre, 0x0, 20*4);
+//				}*/
+//				//ypos_pre = ypos;
+//				//xpos_pre = xpos;
+//
+//				// Flush everything out to DDR
+//				Xil_DCacheFlush();
+//
+//				// Switch active frame to the back buffer
+//				//DisplayChangeFrame(&dispCtrl, buff);
+//
+//				// Wait for the frame to switch (after active frame is drawn) before continuing
+//				//DisplayWaitForSync(&dispCtrl);
+//
+//		}
+
+	int xx, yy , z, x_av, y_av, prev_xav, prev_yav;
+	x_av = 0;
+	y_av = 0;
+//	int initial = 0;
+	while(1)
+	{
+		xx = *(bramctrl);
+		yy = *(bramctrl+1);
+		z = *(bramctrl+2);
+		prev_xav = x_av;
+		prev_yav = y_av;
+		x_av = xx/z;
+		y_av = yy/z;
+		if(z == 0 || z < 10000){
+			x_av = 0;
+			y_av = 0;
+		}
+		xil_printf("x = %d, y = %d, n = %d at frame = %d \n", xx, yy, z, *(bramctrl+3));
+		xil_printf("x_av = %d, y_av = %d \n", x_av, y_av);
+
+
+		frame = dispCtrl.framePtr[0];
+		frame[640*y_av +x_av] = 0x0;
+
+//			draw_line (prev_xav, prev_yav, x_av, y_av, 0x0);
+//		draw_line_fake (frame,  prev_xav, prev_yav, x_av, y_av, 0x0);
+//		display_line(frame, prev_xav, prev_yav, x_av, y_av, 0x0, 0);
+
+
+//		if ((x_av != prev_xav) && (y_av != prev_yav)){
+//
+//		}
+
+
+		// Flush everything out to DDR
+		Xil_DCacheFlush();
+
+	}
+	return 0;
+}
+
+
+
+//{150, 250}, {191, 241}
+void draw_line_fake (u32* frame, int start_x, int start_y, int end_x, int end_y, u32 colour) {
+	int num_pixel = (abs(start_x - end_x)+1) * (abs(start_y - end_y)+1);
+
+	char is_steep;
+	if (abs(end_y - start_y) > abs(end_x - start_x)) {
+		is_steep = 1;
+	} else {
+		is_steep = 0;
+	}
+
+	if (is_steep == 1) {
+		swap(&start_x, &start_y);
+		swap(&end_x, &end_y);
+	}
+	if (start_x > end_x) {
+		swap(&start_x, &end_x);
+		swap(&start_y, &end_y);
+	}
+
+	int delta_x = end_x - start_x;
+	int delta_y = abs(end_y - start_y);
+	int error = (delta_x / 2) * -1;
+	int y_step;
+	if (start_y < end_y) {
+		y_step = 1;
+	} else {
+		y_step = -1;
+	}
+
+	for (int x = start_x, y = start_y; x <= end_x; x++) {
+		if (is_steep == 1) {
+			//plot_pixel(y, x, colour);
+			//linebox[(b - uly)*abs(start_x - end_x) + (a - ulx)] = 0x0;
+			//linebox[(x - uly)*abs(start_x - end_x) + (y - ulx)] = 0x0;
+			frame[x*640+y] = colour;
+		} else {
+			//plot_pixel(x, y, colour);
+//			linebox[(y - uly)*abs(start_x - end_x) + (x - ulx)] = 0x0;
+			frame[y*640+x] = colour;
+		}
+		error += delta_y;
+		if (error >= 0) {
+			y += y_step;
+			error = error - delta_x;
+		}
+	}
+}
+
+void swap_fake (int* first, int* second) {
+	int temp;
+	temp = *first;
+	*first = *second;
+	*second = temp;
+}
+
+//absolute value
+int abs_fake(int num) {
+	if (num >= 0) {
+		return num;
+	}
+	return -1 * num;
+}

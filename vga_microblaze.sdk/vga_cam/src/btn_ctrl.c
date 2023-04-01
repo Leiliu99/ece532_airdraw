@@ -1,0 +1,308 @@
+/*
+ * btn_ctrl.c
+ *
+ *  Created on: Feb 18, 2023
+ *      Author: 14379
+ */
+#include "btn_ctrl.h"
+#include <stdio.h>
+
+int colour_ccc;
+
+int menu_switch(int option) {
+	if (option == DRAW) {
+		option = LINE_WEIGHT;
+	} else if (option == LINE_WEIGHT) {
+		option = CLR_SELECT;
+	} else if (option == CLR_SELECT) {
+		option = ERASE;
+	} else if (option == ERASE) {
+		option = TEXT;
+	} else if (option == TEXT) {
+		option = SAVE;
+	} else if (option == SAVE) {
+		option = DRAW;
+	}
+	return option;
+}
+
+int clr_switch(int curr_clr) {
+	if (curr_clr == PIXEL_BLACK) {
+		curr_clr = PIXEL_RED;
+	} else if (curr_clr == PIXEL_RED) {
+		curr_clr = PIXEL_BLUE;
+	} else if (curr_clr == PIXEL_BLUE) {
+		curr_clr = PIXEL_USER;
+	} else if (curr_clr == PIXEL_USER) {
+		curr_clr = PIXEL_BLACK;
+	}
+	return curr_clr;
+}
+
+int weight_switch(int curr_weight) {
+	if (curr_weight == 1) {
+		curr_weight = 2;
+	} else if (curr_weight == 2) {
+		curr_weight = 3;
+	} else if (curr_weight == 3) {
+		curr_weight = 1;
+	}
+	return curr_weight;
+}
+
+void menu_initialize(u32 *frame){
+	logo_display(frame, &pencil_1, DRAW_LOGO_X, DRAW_LOGO_Y);
+	logo_display(frame, &weight_0, LINE_WEIGHT_LOGO_X, LINE_WEIGHT_LOGO_Y);
+	logo_display(frame, &colour_0, CLR_SELECT_LOGO_X, CLR_SELECT_LOGO_Y);
+	logo_display(frame, &eraser_0, ERASE_LOGO_X, ERASE_LOGO_Y);
+	logo_display(frame, &text_0, TEXT_LOGO_X, TEXT_LOGO_Y);
+//	logo_display(frame, &save_0, SAVE_LOGO_X, SAVE_LOGO_Y);
+	logo_display(frame, &clear_0, SAVE_LOGO_X, SAVE_LOGO_Y);
+
+
+}
+
+void logo_display(u32 *frame, const int* logo_array, int xloc, int yloc){
+	u32 color_menu;
+	for (int y = 0; y < 40; y++){
+		for (int x = 0; x <120; x+=3){
+			color_menu =  (logo_array[120*y+x] << 16) | (logo_array[120*y+x + 2] << 8) | (logo_array[120*y+x+1]);
+			if(color_menu == 0x0)
+				continue;
+			frame[(yloc + y) * 640 + (xloc + x) /3] = color_menu;
+		}
+	}
+
+}
+
+void grey_prev_logo(u32 *frame, int prev_option) {
+	if (prev_option == DRAW) {
+		logo_display(frame, &pencil_0, DRAW_LOGO_X, DRAW_LOGO_Y);
+	} else if (prev_option == CLR_SELECT) {
+		logo_display(frame, &colour_0, CLR_SELECT_LOGO_X, CLR_SELECT_LOGO_Y);
+	} else if (prev_option == ERASE) {
+		logo_display(frame, &eraser_0, ERASE_LOGO_X, ERASE_LOGO_Y);
+	} else if (prev_option == TEXT) {
+		logo_display(frame, &text_0, TEXT_LOGO_X, TEXT_LOGO_Y);
+	} else if (prev_option == SAVE) {
+//		logo_display(frame, &save_0, SAVE_LOGO_X, SAVE_LOGO_Y);
+		logo_display(frame, &clear_0, SAVE_LOGO_X, SAVE_LOGO_Y);
+	} else if (prev_option == LINE_WEIGHT){
+		logo_display(frame, &weight_0, LINE_WEIGHT_LOGO_X, LINE_WEIGHT_LOGO_Y);
+	}
+}
+
+//unused...
+void display_curr_logo (u32 *frame, int option) {
+	if (option == DRAW) {
+		logo_display(frame, &pencil_1, DRAW_LOGO_X, DRAW_LOGO_Y);
+	} else if (option == CLR_SELECT) {
+		logo_display(frame, &colour_1, CLR_SELECT_LOGO_X, CLR_SELECT_LOGO_Y);
+	} else if (option == ERASE) {
+		logo_display(frame, &eraser_1, ERASE_LOGO_X, ERASE_LOGO_Y);
+	} else if (option == TEXT) {
+		logo_display(frame, &text_1, TEXT_LOGO_X, TEXT_LOGO_Y);
+	} else if (option == SAVE) {
+//		logo_display(frame, &save_1, SAVE_LOGO_X, SAVE_LOGO_Y);
+		logo_display(frame, &clear_1, SAVE_LOGO_X, SAVE_LOGO_Y);
+	} else if (option == LINE_WEIGHT) {
+		logo_display(frame, &weight_1, LINE_WEIGHT_LOGO_X, LINE_WEIGHT_LOGO_Y);
+	}
+}
+
+
+
+void menu_display(u32 *frame, int curr_clr, int curr_weight, int option, int prev_option) {
+	grey_prev_logo(frame, prev_option);
+//	u32 color_menu;
+	if (option == DRAW) {
+		logo_display(frame, &pencil_1, DRAW_LOGO_X, DRAW_LOGO_Y);
+
+//		draw_square(frame, 24, 74, 8, 68, PIXEL_WHITE); //make colour bar disappear
+
+	} else if (option == CLR_SELECT) {
+		logo_display(frame, &colour_1, CLR_SELECT_LOGO_X, CLR_SELECT_LOGO_Y);
+
+		//display the current colours we have:
+		//location: (10,70), (35, 70), (60, 70)
+		//size: 20*20
+		draw_square(frame, CLR_SIZE, CLR_SIZE, CLR_BASE_XPOS, CLR_BASE_YPOS, PIXEL_BLACK);
+		draw_square(frame, CLR_SIZE, CLR_SIZE, CLR_BASE_XPOS, CLR_BASE_YPOS + 1*CLR_OFFSET, PIXEL_RED);
+		draw_square(frame, CLR_SIZE, CLR_SIZE, CLR_BASE_XPOS, CLR_BASE_YPOS + 2*CLR_OFFSET, PIXEL_BLUE);
+		draw_square(frame, CLR_SIZE, CLR_SIZE, CLR_BASE_XPOS, CLR_BASE_YPOS + 3*CLR_OFFSET, colour_ccc);
+
+		if (curr_clr == PIXEL_BLACK) {
+			draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS - 2, PIXEL_GREY);
+		} else if (curr_clr == PIXEL_RED) {
+			draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 1*CLR_OFFSET - 2, PIXEL_GREY);
+		} else if (curr_clr == PIXEL_BLUE) {
+			draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 2*CLR_OFFSET - 2, PIXEL_GREY);
+		} else if (curr_clr == PIXEL_USER) {
+			draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 3*CLR_OFFSET - 2, PIXEL_GREY);
+		}
+
+	} else if (option == LINE_WEIGHT) {
+		logo_display(frame, &weight_1, LINE_WEIGHT_LOGO_X, LINE_WEIGHT_LOGO_Y);
+		update_weight_clr(frame, curr_clr);
+		if (curr_weight == 1) {
+			draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS - 2, WEIGHT_BASE_YPOS - 2, PIXEL_GREY);
+		} else if (curr_weight == 2) {
+			draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS + 1*WEIGHT_OFFSET - 2, WEIGHT_BASE_YPOS - 2, PIXEL_GREY);
+		} else if (curr_weight == 3) {
+			draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS + 2*WEIGHT_OFFSET - 2, WEIGHT_BASE_YPOS - 2, PIXEL_GREY);
+		}
+	} else if (option == ERASE) {
+		logo_display(frame, &eraser_1, ERASE_LOGO_X, ERASE_LOGO_Y);
+	} else if (option == TEXT) {
+		logo_display(frame, &text_1, TEXT_LOGO_X, TEXT_LOGO_Y);
+	} else if (option == SAVE) {
+//		logo_display(frame, &save_1, SAVE_LOGO_X, SAVE_LOGO_Y);
+		logo_display(frame, &clear_1, SAVE_LOGO_X, SAVE_LOGO_Y);
+	}
+
+}
+
+//length: y, width: x
+void draw_square(u32 *frame, int length, int width, int xloc, int yloc, int clr) {
+	for (int y = 0; y < length; y++) {
+		for (int x = 0; x < width; x++) {
+			frame[(yloc + y)*640 + xloc + x] = clr;
+		}
+	}
+}
+
+void draw_clr_select(u32 *frame, int length, int width, int xloc, int yloc, int clr) {
+	for (int x = 0; x < width; x++) {
+		frame[yloc*640 + xloc + x] = clr;
+		frame[(yloc + length - 1)*640 + xloc + x] = clr;
+	}
+
+	for (int y = 0; y < length; y++) {
+		frame[(yloc + y)*640 + xloc] = clr;
+		frame[(yloc + y)*640 + xloc + width - 1] = clr;
+	}
+}
+
+void weight_display(u32 *frame, int curr_weight) {
+	if (curr_weight == 1) {
+		draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS + 2*WEIGHT_OFFSET - 2, WEIGHT_BASE_YPOS - 2, PIXEL_WHITE);
+		draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS - 2, WEIGHT_BASE_YPOS - 2, PIXEL_GREY);
+	} else if (curr_weight ==2) {
+		draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS - 2, WEIGHT_BASE_YPOS - 2, PIXEL_WHITE);
+		draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS + 1*WEIGHT_OFFSET - 2, WEIGHT_BASE_YPOS - 2, PIXEL_GREY);
+	} else if (curr_weight == 3) {
+		draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS + 1*WEIGHT_OFFSET - 2, WEIGHT_BASE_YPOS - 2, PIXEL_WHITE);
+		draw_clr_select(frame, W_BOX_SIZE, W_BOX_SIZE, WEIGHT_BASE_XPOS + 2*WEIGHT_OFFSET - 2, WEIGHT_BASE_YPOS - 2, PIXEL_GREY);
+	}
+}
+
+void clr_display(u32 *frame, int curr_clr) {
+	if (curr_clr == PIXEL_BLACK) {
+		//prev at blue, first erase
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2,  CLR_BASE_YPOS + 3*CLR_OFFSET - 2, PIXEL_WHITE);
+		// highlight curr
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2,  CLR_BASE_YPOS - 2, PIXEL_GREY);
+	} else if (curr_clr == PIXEL_RED) {
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS- 2, PIXEL_WHITE);
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 1*CLR_OFFSET - 2, PIXEL_GREY);
+	} else if (curr_clr == PIXEL_BLUE) {
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 1*CLR_OFFSET - 2, PIXEL_WHITE);
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 2*CLR_OFFSET - 2, PIXEL_GREY);
+	}
+	else if (curr_clr == PIXEL_USER) {
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 2*CLR_OFFSET - 2, PIXEL_WHITE);
+		draw_clr_select(frame, BOX_SIZE, BOX_SIZE, CLR_BASE_XPOS - 2, CLR_BASE_YPOS + 3*CLR_OFFSET - 2, PIXEL_GREY);
+	}
+}
+
+void update_weight_clr(u32* frame, int curr_clr) {
+	int weight_clr = curr_clr;
+	if (curr_clr == PIXEL_USER) {
+		weight_clr = colour_ccc;
+	}
+	draw_square(frame, 1, 1, WEIGHT_BASE_XPOS + WEIGHT_SIZE/2 , WEIGHT_BASE_YPOS + (WEIGHT_SIZE/2) - 1, weight_clr);
+	draw_square(frame, 2, 2, WEIGHT_BASE_XPOS + 1*WEIGHT_OFFSET + (WEIGHT_SIZE/2) - 1, WEIGHT_BASE_YPOS + (WEIGHT_SIZE/2) - 1 , weight_clr);
+	draw_square(frame, 3, 3, WEIGHT_BASE_XPOS + 2*WEIGHT_OFFSET + WEIGHT_SIZE/2 - 1, WEIGHT_BASE_YPOS + (WEIGHT_SIZE/2) - 1, weight_clr);
+
+}
+
+void display_cursor(u32* frame, int xpos, int ypos, int clr, int xsize, int ysize, int stride) {
+	//first erase previous
+	//erase_cursor(frame, prev_xpos, prev_ypos, clr, xsize, ysize, stride);
+	//then draw cursor on the frame
+	//if (prev_xpos == xpos && prev_ypos == ypos) return;
+	draw_square(frame, ysize, xsize, xpos, ypos, clr);
+}
+
+void erase_cursor(u32* frame, int prev_xpos, int prev_ypos, int xsize, int ysize, int stride) {
+	for (int y = prev_ypos; y < prev_ypos+ysize; y++) {
+		memcpy(frame + y*stride + prev_xpos, canvas + y*stride + prev_xpos, xsize*4);
+	}
+}
+
+int hex_validate(int ps2_data) {
+	if ((ps2_data & 0xff) == 0x2B) {
+		//F
+		return 0xF;
+	} else if ((ps2_data & 0xff) == 0x24) {
+		//E
+		return 0xE;
+	} else if ((ps2_data & 0xff) == 0x23) {
+		//D
+		return 0xD;
+	} else if ((ps2_data & 0xff) == 0x21) {
+		//C
+		return 0xC;
+	} else if ((ps2_data & 0xff) == 0x32) {
+		//B
+		return 0xB;
+	} else if ((ps2_data & 0xff) == 0x1C) {
+		//A
+		return 0xA;
+	} else if ((ps2_data & 0xff) == 0x46) {
+		//9
+		return 0x9;
+	} else if ((ps2_data & 0xff) == 0x3E) {
+		//8
+		return 0x8;
+	} else if ((ps2_data & 0xff) == 0x3D) {
+		//7
+		return 0x7;
+	} else if ((ps2_data & 0xff) == 0x36) {
+		//6
+		return 0x6;
+	} else if ((ps2_data & 0xff) == 0x2E) {
+		//5
+		return 0x5;
+	} else if ((ps2_data & 0xff) == 0x25) {
+		//4
+		return 0x4;
+	} else if ((ps2_data & 0xff) == 0x26) {
+		//3
+		return 0x3;
+	} else if ((ps2_data & 0xff) == 0x1E) {
+		//2
+		return 0x2;
+	} else if ((ps2_data & 0xff) == 0x16) {
+		//1
+		return 0x1;
+	} else if ((ps2_data & 0xff) == 0x45) {
+		//0
+		return 0x0;
+	} else if ((ps2_data & 0xff) == 0x66) {
+		return 0xEEEEEEEE;
+	}
+	return 0xFFFFFFFF;
+}
+
+int get_colour_code (int* c_c_c, int ccc_index) {
+    //int c_c_c [6] = {0xB, 0xA, 0xC, 0xD, 0xFFFFFFFF, 0xFFFFFFFF};
+    //int ccc_index = 4;
+    int ccc_code = 0;
+    for (int i = 0; i < ccc_index; i++) {
+        ccc_code |= c_c_c[i] << (4*(ccc_index - 1 - i));
+    }
+    return ccc_code;
+}
+
+

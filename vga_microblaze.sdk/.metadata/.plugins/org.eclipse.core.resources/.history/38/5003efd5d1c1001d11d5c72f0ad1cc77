@@ -1,0 +1,466 @@
+/**
+ * Example of using the Digilent display drivers for Zybo VGA output, with animation
+ * Russell Joyce, 14/03/2017
+ */
+//#include <stdio.h>
+#include <stdlib.h>
+#include "xil_types.h"
+#include "xil_cache.h"
+#include "xparameters.h"
+#include "zybo_vga/display_ctrl.h"
+#include "platform.h"
+#include "xil_io.h"
+#include "PS2Decoder.h"
+#include "string.h"
+#include "draw.h"
+#include "btn_ctrl.h"
+
+//try
+//#include <time.h>
+
+// frame size and stride
+#define MAX_FRAME (640*480)
+#define FRAME_STRIDE (640*4)
+
+
+
+
+DisplayCtrl dispCtrl; // Display driver struct
+u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
+void *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
+
+//keyboard parameter
+volatile unsigned int* keyboard = (unsigned int*) XPAR_AXI_GPIO_0_BASEADDR;
+
+//button parameter
+volatile unsigned int* button = (unsigned int*)  XPAR_BUTTON_GPIO_BASEADDR;
+
+volatile unsigned int* bramctrl = (unsigned int*) XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR;
+
+int main(void) {
+	int option = DRAW;
+	int prev_option = DRAW;
+	int curr_clr = PIXEL_BLACK;
+	int curr_weight = 1;
+	int heart_index = 0;
+
+	init_platform();
+
+	// Initialise an array of pointers to the 2 frame buffers
+	int i;
+	for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
+		pFrames[i] = frameBuf[i];
+
+	// Initialise the display controller
+	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_S_AXI_LITE_BASEADDR, pFrames, FRAME_STRIDE);
+
+	// Start with the first frame buffer (of two)
+	DisplayChangeFrame(&dispCtrl, 0);
+
+	// Set the display resolution
+	DisplaySetMode(&dispCtrl, &VMODE_640x480);
+
+	// Enable video output
+	DisplayStart(&dispCtrl);
+
+	// Get parameters from display controller struct
+
+	u32 stride = dispCtrl.stride / 4;
+	u32 width = dispCtrl.vMode.width;
+	u32 height = dispCtrl.vMode.height;
+
+	//temp data
+	int points[20][2] = {{150, 250}, {191, 241},{216, 224},{232, 205},{245, 183},{250, 150},
+			{243, 113},{228, 88},{206, 67},{179, 54},{147, 50},{117, 56},{89, 71},
+			{71, 89},{56, 115},{51, 163},{57, 187},{72, 213},{103, 238},{150, 250} };
+	int hearts[30][2] = { {400,200}, {405, 221}, {415, 236}, {429, 246}, {450, 250}, {474, 244}, {491, 228}, {500, 204},
+			{496, 186}, {486, 169}, {473, 152}, {454, 132}, {438, 116}, {426, 104}, {410, 84}, {400, 52}, {388, 85},
+			{373, 105}, {342, 137}, {316, 166}, {306, 182}, {300, 204}, {304, 220}, {313, 234}, {332, 247}, {350, 250},
+			{370, 246}, {385, 236}, {396, 220}, {400, 200}};
+
+	u32 *frame;
+	u32 buff = dispCtrl.curFrame;
+
+
+
+	//initialize 2 frames (display)
+	frame = dispCtrl.framePtr[0];
+	memset(frame, 0xFF, MAX_FRAME*4);
+//	frame = dispCtrl.framePtr[1];
+//	memset(frame, 0xFF, MAX_FRAME*4);
+
+	//initialize canvas for drawing data (mem)
+	memset(canvas, 0xFF, MAX_FRAME*4);
+
+
+	//button start here
+	unsigned int btn_data;
+
+	unsigned int ps2_data;
+	ps2_data = *keyboard;
+	int text_index = 0;
+
+//	menu_display(frame, option, curr_clr);
+	menu_initialize(frame);
+	Xil_DCacheFlush();
+	int prev_btn_data = *button;
+	int btn1_posedge = 0;
+	int btn2_posedge = 0;
+	int xx, yy , z, x_av, y_av, prev_xav, prev_yav;
+	x_av = 0;
+	y_av = 0;
+	while (1) {
+		//read data from bram to get camera position
+		xil_printf("%x\n", *keyboard);
+		xx = *(bramctrl);
+		yy = *(bramctrl+1);
+		z = *(bramctrl+2);
+		if (x_av != 0 && y_av != 0)
+		{
+			prev_xav = x_av;
+			prev_yav = y_av;
+		}
+
+		if(z == 0 || z < 10000){
+//			x_av = 0;
+//			y_av = 0;
+			x_av = prev_xav;
+			y_av = prev_yav;
+		} else {
+			x_av = xx/z;
+			y_av = yy/z;
+		}
+
+
+		btn_data = *button;
+		btn1_posedge = 0;
+		btn2_posedge = 0;
+		if ((btn_data & 0x2) == 0x2 && (prev_btn_data & 0x2) == 0x0 ) {
+			btn1_posedge = 1;
+		}
+		if ((btn_data & 0x1) == 0x1 && (prev_btn_data & 0x1) == 0x0 ) {
+			btn2_posedge = 1;
+		}
+
+		// user action: change menu
+		if (btn1_posedge == 1 && btn2_posedge == 0) {
+			prev_option = option;
+   			option = menu_switch(option);
+			menu_display(frame, curr_clr, curr_weight, option, prev_option);
+			if (option == LINE_WEIGHT) {
+				erase_cursor(frame, prev_xav, prev_yav, curr_weight, curr_weight, stride);
+			}
+			else if (option == TEXT) {
+				erase_cursor(frame, prev_xav, prev_yav, ERASER_SIZE, ERASER_SIZE, stride);
+			}
+			else if (option == SAVE) {
+				erase_cursor(frame, prev_xav, prev_yav, curr_weight, curr_weight, stride);
+			}
+		}
+
+		// user action:
+		else if (btn1_posedge == 0 && btn2_posedge == 1) {
+			//edge sensitive
+			if (option == CLR_SELECT) {
+				curr_clr = clr_switch(curr_clr);
+				clr_display(frame, curr_clr);
+				update_weight_clr(frame, curr_clr);
+			}
+			else if (option == LINE_WEIGHT) {
+				curr_weight = weight_switch(curr_weight);
+				weight_display(frame, curr_weight);
+			}
+
+
+		}
+
+		//edge insensitive
+		if (option == DRAW) {
+
+			if ((btn_data & 0x1) == 0x1) {
+				if(prev_xav != 0 && prev_yav != 0)
+				{
+					display_line(frame, prev_xav, prev_yav, x_av, y_av, curr_clr, curr_weight);
+					for (int i = 0; i < 2000; i++) {//delay
+						canvas[0] = i;
+						frame[0] = i;
+						Xil_DCacheFlush();
+					}
+				}
+
+
+
+
+				// Flush everything out to DDR
+				Xil_DCacheFlush();
+
+			} else {
+				if (prev_xav == x_av && prev_yav == y_av) {
+
+				} else {
+					erase_cursor(frame, prev_xav, prev_yav,  curr_weight, curr_weight, stride);
+					display_cursor(frame, prev_xav, prev_yav, x_av, y_av, curr_clr, curr_weight, curr_weight, stride);
+				}
+			}
+
+
+		} else if (option == ERASE) {
+			if ((btn_data & 0x1) == 0x1) {
+				//erasing~~~~~ :)
+				display_line(frame, prev_xav, prev_yav, x_av, y_av, 0xFFFFFF, ERASER_SIZE);
+				erase_cursor(frame, prev_xav, prev_yav, ERASER_SIZE, ERASER_SIZE, stride);
+				display_cursor(frame, prev_xav, prev_yav, x_av, y_av, PIXEL_ERASE, ERASER_SIZE, ERASER_SIZE, stride);
+				for (int i = 0; i < 2000; i++) {//delay
+					canvas[0] = i;
+					frame[0] = i;
+					Xil_DCacheFlush();
+				}
+			} else {
+				if (prev_xav == x_av && prev_yav == y_av) {
+
+				} else {
+					erase_cursor(frame, prev_xav, prev_yav, ERASER_SIZE, ERASER_SIZE, stride);
+					display_cursor(frame, prev_xav, prev_yav, x_av, y_av, PIXEL_ERASE, ERASER_SIZE, ERASER_SIZE, stride);
+				}
+			}
+
+
+
+
+		} else if (option == TEXT) {
+			//everytime checks the keyboard code
+			int xloc_curr = 100;
+			int yloc_curr = 100;
+			int offset = 27;
+
+			if(ps2_data != *keyboard) {
+				ps2_data = *keyboard;
+				if(((ps2_data & 0xff) != 0xf0) && ((ps2_data & 0xf000) == 0xf000)) {
+					ps2_display(frame, ps2_data, xloc_curr, yloc_curr, text_index, curr_clr);
+					text_index++；
+				}
+			}
+
+		}
+
+
+
+		prev_btn_data = btn_data;
+		Xil_DCacheFlush();
+
+	}
+
+	cleanup_platform();
+
+	return 0;
+}
+//
+//while(1)
+//	{
+//		btn_data = *button;
+//		//if button2
+//
+//		if ((btn_data & 0x3) == 0x1)
+//		{
+//			for (int i = 0; i < 19; i ++) {
+//					// Switch the frame we're modifying to be back buffer (1 to 0, or 0 to 1)
+//					//buff = !buff;
+//					frame = dispCtrl.framePtr[buff];
+//
+//					xpos_start = points[i][0];
+//					ypos_start = points[i][1];
+//					xpos_end = points[1+i][0];
+//					ypos_end = points[1+i][1];
+//
+//					draw_line (xpos_start, ypos_start, xpos_end, ypos_end, 0x0);
+//
+//					ulx = (xpos_start > xpos_end) ? xpos_end : xpos_start;
+//					uly = (ypos_start > ypos_end) ? ypos_end : ypos_start;
+//					delta_x = abs(xpos_start - xpos_end) + 1;
+//					delta_y = abs(ypos_start - ypos_end) + 1;
+//
+//					for (y = uly; y < uly+delta_y; y++) {
+//						memcpy(frame + y*stride + ulx, canvas + y*stride + ulx, delta_x*4);
+//					}
+//
+//					// Flush everything out to DDR
+//					Xil_DCacheFlush();
+//
+//					// Switch active frame to the back buffer
+//					//DisplayChangeFrame(&dispCtrl, buff);
+//
+//					// Wait for the frame to switch (after active frame is drawn) before continuing
+//					//DisplayWaitForSync(&dispCtrl);
+//
+//				}
+//			break;
+//		}
+//	}
+//
+//
+//
+//
+
+
+
+//start keyboard functionality
+//	unsigned int ps2_data;
+//
+//	unsigned int target_colour = 0x000000;
+//
+//	draw_line (0, 0, 15, 20, 0xF0561D);
+//	while(1)
+//	{
+//		//ps2_data = *keyboard;
+//		draw_line (30, 30, 200, 200, 0xF0561D);
+//		if(ps2_data != *keyboard)
+//		{
+//			ps2_data = *keyboard;
+//			if(((ps2_data & 0xff) != 0xf0) && ((ps2_data & 0xf000) == 0xf000)) {
+//				//printf("%s\n", keyvalue(ps2_data&0xffff));
+//				if ((ps2_data & 0xff) == 0x1D) {
+//					target_colour = PIXEL_WHITE;
+//				} else if ((ps2_data & 0xff) == 0x35) {
+//					target_colour = PIXEL_YELLOW;
+//				} else if ((ps2_data & 0xff) == 0x32) {
+//					target_colour = PIXEL_BLUE;
+//				} else if ((ps2_data & 0xff) == 0x2D) {
+//					target_colour = PIXEL_RED;
+//				} else if ((ps2_data & 0xff) == 0x34) {
+//					target_colour = PIXEL_GREEN;
+//				} else {
+//					target_colour = PIXEL_BLACK;
+//				}
+//				for (y = 0; y < height; y++) {
+//					for (x = 0; x < width; x++) {
+//						frame[y*stride + x] = target_colour;
+//					}
+//				}
+//				Xil_DCacheFlush();
+//			}
+//
+//		}
+//
+//	}
+
+
+/**
+ * Example of using the Digilent display drivers for Zybo VGA output
+ * Russell Joyce, 16/02/2017
+ */
+
+/*#include <stdio.h>
+#include "xil_types.h"
+#include "xil_cache.h"
+#include "xparameters.h"
+#include "zybo_vga/display_ctrl.h"
+#include "platform.h"
+#include "xil_io.h"
+#include "PS2Decoder.h"
+#include "string.h"
+
+// Frame size (based on 1440x900 resolution, 32 bits per pixel)
+#define MAX_FRAME (640*480)
+#define FRAME_STRIDE (640*4)
+#define PIXEL_BLUE 0x00FF00
+#define PIXEL_RED 0xFF0000
+#define PIXEL_GREEN 0x0000FF
+#define PIXEL_YELLOW 0xFF00FF
+#define PIXEL_WHITE 0xFFFFFF
+#define PIXEL_BLACK 0x000000
+DisplayCtrl dispCtrl; // Display driver struct
+u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
+void *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
+
+volatile unsigned int* keyboard = (unsigned int*) XPAR_AXI_GPIO_0_BASEADDR;
+
+
+
+int main(void) {
+	init_platform();
+
+	int i;
+	for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
+		pFrames[i] = frameBuf[i];
+
+	// Initialise the display controller
+	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_S_AXI_LITE_BASEADDR, pFrames, FRAME_STRIDE);
+
+	// Use first frame buffer (of two)
+	DisplayChangeFrame(&dispCtrl, 0);
+
+	// Set the display resolution
+	DisplaySetMode(&dispCtrl, &VMODE_640x480);
+
+	// Enable video output
+	DisplayStart(&dispCtrl);
+
+	// Get parameters from display controller struct
+	int x, y;
+	u32 stride = dispCtrl.stride / 4;
+	u32 width = dispCtrl.vMode.width;
+	u32 height = dispCtrl.vMode.height;
+	u32 *frame = dispCtrl.framePtr[dispCtrl.curFrame];
+	u32 red, green, blue;
+
+
+	//Initialize the background colours
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < width; x++) {
+			green = (x*0xFF) / width;
+			blue = 0xFF - ((x*0xFF) / width);
+			red = (y*0xFF) / height;
+			frame[y*stride + x] = (red << BIT_DISPLAY_RED) | (blue << BIT_DISPLAY_BLUE) | (green << BIT_DISPLAY_GREEN);
+		}
+	}
+	// Flush the cache, so the Video DMA core can pick up our frame buffer changes.
+		// Flushing the whole cache (rather than a range) makes sense as our buffer is so big
+		Xil_DCacheFlush();
+
+
+
+
+		unsigned int ps2_data;
+
+		unsigned int target_colour = 0x000000;
+
+	    while(1)
+	    {
+	        //ps2_data = *keyboard;
+	    	if(ps2_data != *keyboard)
+	    	{
+	    		ps2_data = *keyboard;
+	    		if(((ps2_data & 0xff) != 0xf0) && ((ps2_data & 0xf000) == 0xf000)) {
+	    			//printf("%s\n", keyvalue(ps2_data&0xffff));
+	    			if ((ps2_data & 0xff) == 0x1D) {
+	    				target_colour = PIXEL_WHITE;
+	    			} else if ((ps2_data & 0xff) == 0x35) {
+	    				target_colour = PIXEL_YELLOW;
+	    			} else if ((ps2_data & 0xff) == 0x32) {
+	    				target_colour = PIXEL_BLUE;
+	    			} else if ((ps2_data & 0xff) == 0x2D) {
+	    				target_colour = PIXEL_RED;
+	    			} else if ((ps2_data & 0xff) == 0x34) {
+	    				target_colour = PIXEL_GREEN;
+	    			} else {
+	    				target_colour = PIXEL_BLACK;
+	    			}
+					for (y = 0; y < height; y++) {
+						for (x = 0; x < width; x++) {
+							frame[y*stride + x] = target_colour;
+						}
+					}
+					Xil_DCacheFlush();
+	    			//}
+	    		}
+
+	    	}
+
+	    }
+    cleanup_platform();
+
+	return 0;
+}*/
+
+
+

@@ -1,0 +1,41 @@
+20:32:47 **** Auto Build of configuration Debug for project vga_cam ****
+make all 
+'Building file: ../src/main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main.o" -I../../vga_cam_bsp/microblaze_0/include -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.c"
+../src/main.c: In function 'main':
+../src/main.c:118:23: warning: passing argument 2 of 'title_display' from incompatible pointer type [-Wincompatible-pointer-types]
+  title_display(frame, &logo_rainbow, 180, 0);
+                       ^
+In file included from ../src/main.c:16:0:
+../src/btn_ctrl.h:70:6: note: expected 'const int *' but argument is of type 'const int (*)[36750]'
+ void title_display(u32 *frame, const int* logo_array, int xloc, int yloc);
+      ^~~~~~~~~~~~~
+../src/main.c:115:6: warning: variable 'z' set but not used [-Wunused-but-set-variable]
+  int z, x_av, y_av, prev_xav, prev_yav;
+      ^
+../src/main.c:94:6: warning: unused variable 'buff' [-Wunused-variable]
+  u32 buff = dispCtrl.curFrame;
+      ^~~~
+../src/main.c:92:6: warning: unused variable 'height' [-Wunused-variable]
+  u32 height = dispCtrl.vMode.height;
+      ^~~~~~
+../src/main.c:91:6: warning: unused variable 'width' [-Wunused-variable]
+  u32 width = dispCtrl.vMode.width;
+      ^~~~~
+'Finished building: ../src/main.c'
+' '
+'Building target: vga_cam.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../vga_cam_bsp/microblaze_0/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "vga_cam.elf"  ./src/zybo_vga/display_ctrl.o ./src/zybo_vga/dynclk.o  ./src/btn_ctrl.o ./src/draw.o ./src/main.o ./src/platform.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: vga_cam.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size vga_cam.elf  |tee "vga_cam.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 489404	    468	3692432	4182304	 3fd120	vga_cam.elf
+'Finished building: vga_cam.elf.size'
+' '
+
+20:32:48 Build Finished (took 1s.877ms)
+

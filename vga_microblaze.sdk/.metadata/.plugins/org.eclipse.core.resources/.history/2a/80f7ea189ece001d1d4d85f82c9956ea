@@ -1,0 +1,516 @@
+/**
+ * Example of using the Digilent display drivers for Zybo VGA output, with animation
+ * Russell Joyce, 14/03/2017
+ */
+//#include <stdio.h>
+#include <stdlib.h>
+#include "xil_types.h"
+#include "xil_cache.h"
+#include "xparameters.h"
+#include "zybo_vga/display_ctrl.h"
+#include "platform.h"
+#include "xil_io.h"
+#include "PS2Decoder.h"
+#include "string.h"
+#include "draw.h"
+#include "btn_ctrl.h"
+
+// frame size and stride
+#define MAX_FRAME (640*480)
+#define FRAME_STRIDE (640*4)
+
+
+
+
+DisplayCtrl dispCtrl; // Display driver struct
+u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
+void *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
+
+//keyboard parameter
+volatile unsigned int* keyboard = (unsigned int*) XPAR_AXI_GPIO_0_BASEADDR;
+
+//button parameter
+volatile unsigned int* button = (unsigned int*)  XPAR_BUTTON_GPIO_BASEADDR;
+
+volatile unsigned int* bramctrl = (unsigned int*) XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR;
+
+//audio parameter
+volatile unsigned int* audio_addr = (unsigned int*) XPAR_AUDIO_GPIO_BASEADDR;
+
+int main(void) {
+	int option = DRAW;
+	int prev_option = DRAW;
+	int curr_clr = PIXEL_BLACK;
+	int curr_weight = 1;
+
+	int chartype[34];
+	for (int i = 0; i < 34; i++) {
+		chartype[0] = 0;
+	}
+
+	//text
+	int xloc_curr = 100;
+	int yloc_curr = 100;
+	int text_xloc_start = 0;
+	int text_yloc_start= 0;
+	int text_ready = 0;
+	int clear_ready = 0;
+
+	int is_ccc = 0;
+	//custom colour code
+	colour_ccc = 0x234567;
+	int c_c_c[6];
+	int chartype_ccc[6];
+	for (int i = 0; i < 6; i++) {
+		c_c_c[i] = 0xFFFFFFFF;
+		chartype_ccc[i] = 0;
+	}
+
+	init_platform();
+
+	// Initialise an array of pointers to the 2 frame buffers
+	int i;
+	for (i = 0; i < DISPLAY_NUM_FRAMES; i++)
+		pFrames[i] = frameBuf[i];
+
+	// Initialise the display controller
+	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_S_AXI_LITE_BASEADDR, pFrames, FRAME_STRIDE);
+
+	// Start with the first frame buffer (of two)
+	DisplayChangeFrame(&dispCtrl, 0);
+
+	// Set the display resolution
+	DisplaySetMode(&dispCtrl, &VMODE_640x480);
+
+	// Enable video output
+	DisplayStart(&dispCtrl);
+
+	// Get parameters from display controller struct
+
+	u32 stride = dispCtrl.stride / 4;
+	u32 width = dispCtrl.vMode.width;
+	u32 height = dispCtrl.vMode.height;
+	u32 *frame;
+	u32 buff = dispCtrl.curFrame;
+
+	//initialize 2 frames (display)
+	frame = dispCtrl.framePtr[0];
+	memset(frame, 0xFF, MAX_FRAME*4);
+
+	//initialize canvas for drawing data (mem)
+	memset(canvas, 0xFF, MAX_FRAME*4);
+
+
+	//button start here
+	unsigned int btn_data;
+	unsigned int ps2_data;
+	ps2_data = *keyboard;
+	int text_index = 0;
+
+//	menu_display(frame, option, curr_clr);
+	menu_initialize(frame);
+	Xil_DCacheFlush();
+	int prev_btn_data = *button;
+	int btn1_posedge = 0;
+	int btn2_posedge = 0;
+	//int xx, yy , 
+	int z, x_av, y_av, prev_xav, prev_yav;
+	x_av = 0;
+	y_av = 0;
+	//draw_clr_select(frame, 380, 585, 48, 59, 0x888888);
+	title_display(frame, &logo_rainbow, 160, 0);
+	draw_square(frame, 2, 250, 180, 0, 0xFFFFFF);
+	while (1) {
+		//read data from bram to get camera position
+		//xil_printf("%x\n", *keyboard);
+		x_av = *(bramctrl);
+		y_av = *(bramctrl+1);
+		z = *(bramctrl+2);
+
+		//ensure camera input is within canvas boundary(not erase menu logo)
+		if (x_av <= 49){
+			x_av = 50;
+		} else if (x_av > 629) {
+			x_av = 629;
+		}
+		if (y_av < 60){
+			y_av = 60;
+		} else if (y_av > 420){
+			y_av = 420;
+		}
+
+
+		//may change:
+		ps2_data = *keyboard;
+
+		btn_data = *button;
+		btn1_posedge = 0;
+		btn2_posedge = 0;
+		if ((btn_data & 0x2) == 0x2 && (prev_btn_data & 0x2) == 0x0 ) {
+			btn1_posedge = 1;
+		}
+		if ((btn_data & 0x1) == 0x1 && (prev_btn_data & 0x1) == 0x0 ) {
+			btn2_posedge = 1;
+		}
+
+		// user action: change menu
+		if (btn1_posedge == 1 && btn2_posedge == 0) {
+			prev_option = option;
+   			option = menu_switch(option);
+			menu_display(frame, curr_clr, curr_weight, option, prev_option);
+			if (option == LINE_WEIGHT) {
+				erase_cursor(frame, prev_xav, prev_yav, curr_weight, curr_weight, stride);
+			}
+			else if (option == TEXT) {
+				erase_cursor(frame, prev_xav, prev_yav, ERASER_SIZE, ERASER_SIZE, stride);
+			}
+			else if (option == SAVE) {
+				erase_cursor(frame, prev_xav, prev_yav, 2, 25, stride);
+			} else if (option == CLR_SELECT) {
+				if (curr_clr == PIXEL_USER) {
+					//update_weight_clr(frame, colour_ccc);
+					is_ccc = 1;
+				} else {
+					update_weight_clr(frame, curr_clr);
+					is_ccc = 0;
+				}
+			}
+			*audio_addr = 0x0;
+			for (int i = 0; i < 2000; i++)
+			{//delay
+				canvas[0] = i;
+				frame[0] = i;
+				Xil_DCacheFlush();
+			}
+
+			*audio_addr = 0x1;
+			for (int i = 0; i < 10000; i++)
+			{//delay
+				canvas[0] = i;
+				frame[0] = i;
+				Xil_DCacheFlush();
+			}
+		}
+
+		// user action:
+		else if (btn1_posedge == 0 && btn2_posedge == 1) {
+			//edge sensitive
+			if (option == CLR_SELECT) {
+				curr_clr = clr_switch(curr_clr);
+
+				clr_display(frame, curr_clr);
+
+				if (curr_clr == PIXEL_USER) {
+					update_weight_clr(frame, colour_ccc);
+					is_ccc = 1;
+				} else {
+					update_weight_clr(frame, curr_clr);
+					is_ccc = 0;
+				}
+
+			}
+			else if (option == LINE_WEIGHT) {
+				curr_weight = weight_switch(curr_weight);
+				weight_display(frame, curr_weight);
+			}
+			else if (option == TEXT) {
+				if (text_ready == 0) {
+					if (x_av < 615)
+						text_ready = 1;
+				}
+			}
+			else if (option == SAVE) {
+				if(clear_ready == 0){
+					clear_ready = 1;
+				}
+			}
+
+			if (option != DRAW && option != ERASE){
+				*audio_addr = 0x0;
+				for (int i = 0; i < 2000; i++)
+				{//delay
+					canvas[0] = i;
+					frame[0] = i;
+					Xil_DCacheFlush();
+				}
+
+				*audio_addr = 0x3;
+				for (int i = 0; i < 10000; i++)
+				{//delay
+					canvas[0] = i;
+					frame[0] = i;
+					Xil_DCacheFlush();
+				}
+			}
+		}
+
+		//edge insensitive
+		if (option == DRAW) {
+			//refresh text_ready
+			text_ready = 0;
+			if ((btn_data & 0x1) == 0x1) {
+				if(prev_xav != 0 && prev_yav != 0)
+				{
+					if (curr_clr == PIXEL_USER) {
+						display_line(frame, prev_xav, prev_yav, x_av, y_av, colour_ccc, curr_weight);
+					} else {
+						display_line(frame, prev_xav, prev_yav, x_av, y_av, curr_clr, curr_weight);
+					}
+					/*for (int i = 0; i < 2000; i++) {//delay
+						canvas[0] = i;
+						frame[0] = i;
+						Xil_DCacheFlush();
+					}*/
+				}
+
+
+
+
+				// Flush everything out to DDR
+				Xil_DCacheFlush();
+
+			} else {
+				if (prev_xav == x_av && prev_yav == y_av) {
+
+				} else {
+					erase_cursor(frame, prev_xav, prev_yav,  curr_weight, curr_weight, stride);
+					if (curr_clr == PIXEL_USER) {
+						display_cursor(frame, x_av, y_av, colour_ccc, curr_weight, curr_weight, stride);
+					} else {
+						display_cursor(frame, x_av, y_av, curr_clr, curr_weight, curr_weight, stride);
+					}
+				}
+			}
+
+		} else if (option == CLR_SELECT) {
+			//is_ccc: in the user defined colour code mode
+			if (is_ccc == 1) {
+				int ccc_index = 0;
+				int xloc_curr_ccc = 40;
+				int yloc_curr_ccc = 420;
+				while (1) {
+					//detecting characters:
+					//need a fixed location (do not draw on canvas)
+
+					if (ps2_data != *keyboard) {
+						ps2_data = *keyboard;
+
+						if(((ps2_data & 0xff) != 0xf0) && ((ps2_data & 0xf000) == 0xf000)) {
+							//Enter Pressed:
+							if ((ps2_data & 0xff) == 0x5A) {
+								is_ccc = 0;
+								break;
+							}
+
+							// check if ps2_data is in 0123456789abcdef
+							int code_to_int = hex_validate(ps2_data);
+							//invalid input YA!
+							if (code_to_int == 0xFFFFFFFF) {
+								continue;
+							} else if (code_to_int != 0xEEEEEEEE) {
+								c_c_c[ccc_index] = code_to_int;
+							}
+							//display the inputs to the screen
+							int value;
+							if (ccc_index == 0) {
+								value = ps2_display(frame, ps2_data, xloc_curr_ccc, yloc_curr_ccc, PIXEL_ELLIE, ccc_index, 0, 0);
+							} else {
+								value = ps2_display(frame, ps2_data, xloc_curr_ccc, yloc_curr_ccc, PIXEL_ELLIE, ccc_index, chartype_ccc[ccc_index], 0);
+							}
+
+							if (value == 0) {
+								//value == 0, to delete:
+								//no need to see if text_index > 0, since it will return -1 for delete
+								//, not entering this if block.
+								xloc_curr_ccc = xloc_curr_ccc - chartype_ccc[ccc_index] - 2;
+								chartype_ccc[ccc_index] = 0;
+								ccc_index --;
+							} else {
+								//write a new character:
+								if (xloc_curr_ccc + value < 640) {
+									//within range
+									ccc_index ++;
+									chartype_ccc[ccc_index] = value;
+									xloc_curr_ccc += (value + 2);
+								}
+								//update the array at curr_txt_idx with the width of the character
+							}
+							if (ccc_index == 6) {
+								is_ccc = 0;
+								break;
+							}
+						}
+						//ccc_index ++;
+					}
+				}
+				// c_c_c[6] is finished:
+				// ccc_index is the number of bits that user input:
+				// compute the colour code
+				if (ccc_index != 0)
+					colour_ccc = get_colour_code (c_c_c, ccc_index);
+				draw_square(frame, CLR_SIZE, CLR_SIZE, CLR_BASE_XPOS, CLR_BASE_YPOS + 3*CLR_OFFSET, colour_ccc);
+				update_weight_clr(frame, colour_ccc);
+				for (int i = 0; i < 5000; i++) {//delay
+					canvas[0] = i;
+					frame[0] = i;
+					Xil_DCacheFlush();
+				}
+				backspace(frame, xloc_curr_ccc, yloc_curr_ccc, (xloc_curr_ccc - 40), 0);
+
+			}
+
+		} else if (option == ERASE) {
+			if ((btn_data & 0x1) == 0x1) {
+				//erasing~~~~~ :)
+				if ((x_av != prev_xav) || (y_av != prev_yav)){ //we only need to redraw eraser logo if position change
+					display_line(frame, prev_xav, prev_yav, x_av, y_av, 0xFFFFFF, ERASER_SIZE);
+					erase_cursor(frame, prev_xav, prev_yav, ERASER_SIZE, ERASER_SIZE, stride);
+					display_cursor(frame, x_av, y_av, PIXEL_ERASE, ERASER_SIZE, ERASER_SIZE, stride);
+					/*for (int i = 0; i < 2000; i++) {//delay
+						canvas[0] = i;
+						frame[0] = i;
+						Xil_DCacheFlush();
+					}*/
+				}
+			} else {
+				if ((x_av != prev_xav) || (y_av != prev_yav)){ //we only need to redraw eraser logo if position change
+					erase_cursor(frame, prev_xav, prev_yav, ERASER_SIZE, ERASER_SIZE, stride);
+					display_cursor(frame, x_av, y_av, PIXEL_ERASE, ERASER_SIZE, ERASER_SIZE, stride);
+				}
+
+			}
+
+		} else if (option == TEXT) {
+			//for testing when no camera is available...
+			//x_av = 100;
+			//y_av = 100;
+			//here keeps display cursor
+			if (text_ready == 0) {
+				if (prev_xav == x_av && prev_yav == y_av) {
+
+				} else {
+					erase_cursor(frame, prev_xav, prev_yav, 2, 25, stride);
+					if (curr_clr == PIXEL_USER) {
+						display_cursor(frame, x_av, y_av, colour_ccc, 2, 25, stride);
+					} else {
+						display_cursor(frame, x_av, y_av, curr_clr, 2, 25, stride);
+					}
+				}
+			} else if (text_ready == 1) {
+				//cursor fixed at a position
+				xloc_curr = x_av;
+				yloc_curr = y_av;
+				text_xloc_start = xloc_curr;
+				text_yloc_start = yloc_curr;
+				text_ready = 2;
+			} else if (text_ready == 2) {
+				int text_delay = 0;
+
+				while (1) {
+				//TODO: add counter for the toggling cursor YA!
+					text_delay ++;
+					if (text_delay == 10000) {
+						if (curr_clr == PIXEL_USER) {
+							display_cursor(frame, xloc_curr, yloc_curr, colour_ccc, 2, 25, stride);
+						} else {
+							display_cursor(frame, xloc_curr, yloc_curr, curr_clr, 2, 25, stride);
+						}
+					} else if(text_delay == 20000) {
+						erase_cursor(frame, xloc_curr, yloc_curr, 2, 25, stride);
+						text_delay = 0;
+					}
+					//polling
+					if (ps2_data != *keyboard) {
+						ps2_data = *keyboard;
+
+						erase_cursor(frame, xloc_curr, yloc_curr, 2, 25, stride);
+						if(((ps2_data & 0xff) != 0xf0) && ((ps2_data & 0xf000) == 0xf000)) {
+							if ((ps2_data &0xff) == 0x5A) {
+								text_ready = 0;
+								//memcpy all the text from frame to canvas
+								//height: 25
+								//width:
+								for (int y = text_yloc_start; y < text_yloc_start + 25; y++) {
+									memcpy(canvas + y*stride + text_xloc_start, frame + y*stride + text_xloc_start, 4*(xloc_curr - text_xloc_start));
+								}
+								text_index = 0;
+								break;
+							}
+							if (xloc_curr > 600) {
+								//approaching boundary
+								if ((ps2_data & 0xff) != 0x66) {
+									continue;
+								}
+							}
+							//need:
+							int value;
+							if (text_index == 0) {
+								if (curr_clr == PIXEL_USER) {
+									value = ps2_display(frame, ps2_data, xloc_curr, yloc_curr, colour_ccc, text_index, 0, 0);
+								} else {
+									value = ps2_display(frame, ps2_data, xloc_curr, yloc_curr, curr_clr, text_index, 0, 0);
+								}
+
+							} else {
+								if (curr_clr == PIXEL_USER) {
+
+									value = ps2_display(frame, ps2_data, xloc_curr, yloc_curr, colour_ccc, text_index, chartype[text_index], 0);
+								} else {
+									value = ps2_display(frame, ps2_data, xloc_curr, yloc_curr, curr_clr, text_index, chartype[text_index], 0);
+								}
+							}
+
+							if (value == 0) {
+								//value == 0, to delete:
+								//no need to see if text_index > 0, since it will return -1.
+								xloc_curr = xloc_curr - chartype[text_index] - 2;
+								chartype[text_index] = 0;
+								text_index --;
+							} else {
+								//write a new character:
+								if (xloc_curr + value < 640) {
+									//within range
+									text_index ++;
+									chartype[text_index] = value;
+									xloc_curr += (value + 2);
+								}
+
+								//update the array at curr_txt_idx with the width of the character
+							}
+						}
+						text_delay = 0;
+					}
+				} //while
+			}
+
+			//everytime checks the keyboard code
+		} else if (option == SAVE) {
+			if (clear_ready == 1){
+				for (int clear_y = 60; clear_y <= 470; clear_y++) {
+					memset(frame + clear_y*stride + 50, 0xFF, 590*4);
+					memset(canvas + clear_y*stride + 50, 0xFF, 590*4);
+//					draw_clr_select(frame, 362, 582, 48, 59, 0);
+					Xil_DCacheFlush();
+				}
+				clear_ready = 0;
+			}
+		}
+
+
+		if (x_av != 0 && y_av != 0)
+		{
+			prev_xav = x_av;
+			prev_yav = y_av;
+		}
+		prev_btn_data = btn_data;
+		Xil_DCacheFlush();
+
+	}
+
+	cleanup_platform();
+
+	return 0;
+}
+
+
+
