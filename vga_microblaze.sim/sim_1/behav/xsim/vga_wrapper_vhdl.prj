@@ -1,0 +1,26 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_v_tc_0_0/sim/vga_v_tc_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_vdma_0_0/sim/vga_axi_vdma_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ipshared/69dc/src/rgb2vga.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_rgb2vga_0_0/sim/vga_rgb2vga_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ipshared/2a7c/src/SyncAsync.vhd" \
+"../../../../vga_microblaze.srcs/sources_1/bd/vga/ipshared/2a7c/src/axi_dynclk_S00_AXI.vhd" \
+"../../../../vga_microblaze.srcs/sources_1/bd/vga/ipshared/2a7c/src/axi_dynclk.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_dynclk_0_0/sim/vga_axi_dynclk_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_microblaze_0_0/sim/vga_microblaze_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_dlmb_v10_0/sim/vga_dlmb_v10_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_ilmb_v10_0/sim/vga_ilmb_v10_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_dlmb_bram_if_cntlr_0/sim/vga_dlmb_bram_if_cntlr_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_ilmb_bram_if_cntlr_0/sim/vga_ilmb_bram_if_cntlr_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_mdm_1_0/sim/vga_mdm_1_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_rst_clk_wiz_1_100M_0/sim/vga_rst_clk_wiz_1_100M_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_rst_mig_7series_0_81M_0/sim/vga_rst_mig_7series_0_81M_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_intc_0_0/sim/vga_axi_intc_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_uartlite_0_0/sim/vga_axi_uartlite_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_gpio_0_0/sim/vga_axi_gpio_0_0.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_gpio_0_1/sim/vga_axi_gpio_0_1.vhd" \
+"../../../../vga_microblaze.ip_user_files/bd/vga/ip/vga_axi_bram_ctrl_0_0/sim/vga_axi_bram_ctrl_0_0.vhd" \
+
+# Do not sort compile order
+nosort
