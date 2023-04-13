@@ -38,7 +38,7 @@ Open vga_microblaze.xpr with Vivado. You may need to upgrade ip’s or re-compil
 <br />Run the design under the vga_cam project inside the sdk window.
 
 ## Documentation
-* 532_group_report.pdf
+* ece532_group1_report.pdf
 * Final Demo.pptx
 
 
